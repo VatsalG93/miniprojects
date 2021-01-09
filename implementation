@@ -1,0 +1,38 @@
+#IIR Filter and Stereo widening on audio signal in MATLAB. 
+
+[x,Fs] = audioread('5mbwave.wav');
+
+%------NTH ORDER FILTER
+nyquist = Fs/2;             
+m = 2;                      
+freqHz = 800;              
+Wn = freqHz/nyquist;
+[b,a] = butter(m,Wn);
+y1 = filter(b,a,x);
+
+%------STEREO IMAGING
+%Splitting signal into right and left channels
+L = x(:,1);
+R = x(:,2);
+%Create mid and side channels
+side = 0.5 * (L-R);
+mid = 0.5 * (L+R);
+%Width amount (wider if > 1, narrower if < 1)
+width = 3.0;
+%Scale the mid/side with width
+sideNew = width .* side;
+midNew = (2 - width).*mid;
+
+%CREATE NEW M/S Signal
+newLeft = midNew + sideNew;
+newRight = midNew - sideNew;
+
+%COMBINE SIGNALS, CONCATENATED SIDE BY SIDE, 2 COLUMNS
+y = [newLeft , newRight];
+%------STEREO IMAGING
+
+%---TONE GEN, GRAPH PLOT
+sound(y2,Fs);                
+plot(y)
+
+
